@@ -1,3 +1,5 @@
+#ifndef UTAR_H
+    #define UTAR_H
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,6 +9,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+#include <stdbool.h>
 
 //Offsets
 
@@ -25,7 +29,7 @@
 #define OWNERGRPNAME    12
 #define DEVICEMAJORNR   13
 #define DEVICEMINORNR   14
-#define FILENAMEPREFIX   15     
+#define FILENAMEPREFIX  15     
 
 // Flags for TYPEFLAG
 
@@ -37,22 +41,35 @@
 #define DIRECTORY       '5'
 #define FIFO            '6'
 
-#define ErrorSeveral(x) fprintf(stderr,x); exit(EXIT_FAILURE) 
+#define ErrorSeveral(x) fprintf(stderr,x); exit(EXIT_FAILURE)
+#define ErrorNormal(x) fprintf(stderr,x); exit(EXIT_FAILURE) 
 
-#define CtrlRtrnNeg(y,x) if(x == -1){\
-                        fprintf(stderr,"%s failed at line %d of file %s (function %s)\n",y,__LINE__,__FILE__,__func__);\
+#define CtrlRtrnNeg(x) if(x < 0){\
+                        fprintf(stderr,"ERROR at line %d of file %s (function %s)\n%s\n",__LINE__,__FILE__,__func__,strerror(errno));\
                         exit(EXIT_FAILURE);}
 
-#define CtrlRtrnNULL(y,x) if(x == NULL){ \
-                        fprintf(stderr,"%s failed at line %d of file %s (function %s)\n",y,__LINE__,__FILE__,__func__);\
+#define CtrlRtrnNULL(x) if(x == NULL){ \
+                        fprintf(stderr," ERROR at line %d of file %s (function %s)\n%s\n",y,__LINE__,__FILE__,__func__,strerror(errno));\
                         exit(EXIT_FAILURE);}
 
 #define HEADERFIELDS    16
 
-struct Header{
+typedef struct{
 
     int offset[HEADERFIELDS];
-    int size[HEADERFIELDS];
-} HeaderField = {{0,100,108,116,124,136,148,156,157,257,263,265,297,329,337,345},
-                {100,8,8,8,12,12,8,1,100,6,2,32,32,8,8,155}
-};
+    size_t size[HEADERFIELDS];
+}Header;
+
+/*typedef struct 
+{
+    int closed;
+    off_t  new_offset;
+    mode_t mode; //fast sicher wir brauchen das nicht
+    ssize_t bytes_read;
+}HelpVariables;
+*/
+
+bool isUstarFile(int fd, char* buffer);
+
+
+#endif
