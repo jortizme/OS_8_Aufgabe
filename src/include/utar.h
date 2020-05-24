@@ -1,6 +1,9 @@
 #ifndef UTAR_H
     #define UTAR_H
 
+#define _POSIX_C_SOURCE 200112L
+#define  _DEFAULT_SOURCE
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -68,8 +71,39 @@ typedef struct{
     ssize_t bytes_read;
 }HelpVariables;
 */
+typedef unsigned long long uin64_t;
+typedef struct 
+{
+    char* FileName;
+    char* GrpName;
+    char* UserName;
+    char* FileType;
+    uin64_t Zugriff;
+    uin64_t FileSize;
+    uin64_t LastModTime;
 
-bool isUstarFile(int fd, char* buffer);
+/*   int Zugriff;
+    int FileSize;
+    int LastModTime;
+*/
+}Info;
+
+/*
+typedef struct 
+{
+    char FileName[100];
+    char GrpName[32];
+    char UserName[32];
+    char FileType;
+    char Zugriff[8];
+    int FileSize[12];
+    int LastModTime[12];
+
+}Info;
+*/
+
+bool isUstarFile(int fd);
+int readContent(int fd);
 
 
 #endif
