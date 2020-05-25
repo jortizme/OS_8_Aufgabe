@@ -71,16 +71,16 @@ typedef struct{
     ssize_t bytes_read;
 }HelpVariables;
 */
-typedef unsigned long long uin64_t;
+typedef unsigned long long uint64;
 typedef struct 
 {
     char* FileName;
     char* GrpName;
     char* UserName;
     char* FileType;
-    uin64_t Zugriff;
-    uin64_t FileSize;
-    uin64_t LastModTime;
+    uint64 Zugriff;
+    uint64 FileSize;
+    uint64 LastModTime;
 
 /*   int Zugriff;
     int FileSize;
