@@ -4,17 +4,20 @@ extern int errno;
 
 int main (int argc, char **argv)
 {
-    //if(argc != 2) {ErrorSeveral("Usage : ./<executable> <filename>\n");}
+    if(argc != 2) {ErrorSeveral("Usage : ./<executable> <filename>\n");}
     int fd;
     mode_t mode = S_IRUSR | S_IRGRP | S_IROTH; //fast sicher wir brauchen das nicht;
     int closed;
+    off_t offset_begin;
 
     errno = 0;
 
-    fd = open("tar-1.32.tar",O_RDONLY, mode);
+    fd = open(argv[argc - 1],O_RDONLY, mode);
     CtrlRtrnNeg(fd);
 
-    if(isUstarFile(fd))
+    offset_begin = lseek(fd, 0, SEEK_SET);
+
+    if(isUstarFile(fd,offset_begin))
         readContent(fd);
 
     closed = close(fd);

@@ -63,14 +63,6 @@ typedef struct{
     size_t size[HEADERFIELDS];
 }Header;
 
-/*typedef struct 
-{
-    int closed;
-    off_t  new_offset;
-    mode_t mode; //fast sicher wir brauchen das nicht
-    ssize_t bytes_read;
-}HelpVariables;
-*/
 typedef unsigned long long uint64;
 typedef struct 
 {
@@ -82,27 +74,10 @@ typedef struct
     uint64 FileSize;
     uint64 LastModTime;
 
-/*   int Zugriff;
-    int FileSize;
-    int LastModTime;
-*/
 }Info;
 
-/*
-typedef struct 
-{
-    char FileName[100];
-    char GrpName[32];
-    char UserName[32];
-    char FileType;
-    char Zugriff[8];
-    int FileSize[12];
-    int LastModTime[12];
 
-}Info;
-*/
-
-bool isUstarFile(int fd);
+bool isUstarFile(int fd , off_t actual_offset);
 int readContent(int fd);
 
 
