@@ -6,9 +6,7 @@ static Header HeaderField  = {{0,100,108,116,124,136,148,156,157,257,263,265,297
 static void read_bytes(int fd, void* buffer, size_t nbytes)
 {
     ssize_t bytes_read = 0;
-
     bytes_read = read(fd, buffer, nbytes);
-
     if(bytes_read != nbytes)
     {
         if(bytes_read > 0){ErrorNormal("Short read for given File\n");}
@@ -66,10 +64,12 @@ bool isUstarFile(int fd, off_t actual_offset)
         return false;
 }
 
-bool lengthAvailable(int fd, off_t actual_offset)
+bool eof(int fd, char* buffer, off_t actual_offset)
 {
-    char buffer[100];
+    //char buffer[100];
     off_t  new_offset;
+
+    bool isUstar = isUstarFile(fd , actual_offset );
 
     new_offset = lseek(fd,HeaderField.size[FILESIZEBYTES],SEEK_CUR);
     CtrlRtrnNeg(new_offset);
@@ -78,10 +78,10 @@ bool lengthAvailable(int fd, off_t actual_offset)
 
     lseek(fd, actual_offset, SEEK_SET);
 
-    if(*buffer == '\0')
-        return false;
-    else 
+    if(*buffer == '\0' && !isUstar)
         return true;
+    else 
+        return false;
 }
 
 int readContent(int fd)
@@ -89,13 +89,13 @@ int readContent(int fd)
     int returnVal = -1;
 
     off_t  new_offset;
-    off_t eof;
+   // off_t eof;
     char buffer[100];
-    
+
     Info FileInfo = {NULL,NULL,NULL,NULL,0,0,0};
 
-    eof = lseek(fd,0,SEEK_END);
-    CtrlRtrnNeg(eof);
+    //eof = lseek(fd,0,SEEK_END);
+   // CtrlRtrnNeg(eof);
 
     new_offset = lseek(fd,0,SEEK_SET);   //go to the beginning of the file
     CtrlRtrnNeg(new_offset);
@@ -114,7 +114,7 @@ int readContent(int fd)
 
     while(true)
     {
-        if(isUstarFile(fd, new_offset) == false && lengthAvailable(fd, new_offset) == false)
+        if(eof(fd, buffer,new_offset))
             break;
         
 
