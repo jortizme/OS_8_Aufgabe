@@ -1,6 +1,6 @@
 #include "include/utar.h"
 
-static Header HeaderField  = {{0,100,108,116,124,136,148,156,157,257,263,265,297,329,337,345},
+static Header HFld  = {{0,100,108,116,124,136,148,156,157,257,263,265,297,329,337,345},
                             {100,8,8,8,12,12,8,1,100,6,2,32,32,8,8,155}};
 
 static void read_bytes(int fd, void* buffer, size_t nbytes)
@@ -25,7 +25,6 @@ static uint64 OctaltoDecimal(uint64* octalNr)
         exponent *= 8;
         *octalNr /= 10;
     }
-    
     return decimalNr;
 }
 
@@ -51,14 +50,14 @@ bool isUstarFile(int fd, off_t actual_offset)
     char buffer[100];
     off_t  new_offset;
 
-    new_offset = lseek(fd,HeaderField.offset[USTARINDICATOR],SEEK_CUR);
+    new_offset = lseek(fd,HFld.offset[USTARINDICATOR],SEEK_CUR);
     CtrlRtrnNeg(new_offset);
 
-    read_bytes(fd, buffer, HeaderField.size[USTARINDICATOR]);
+    read_bytes(fd, buffer, HFld.size[USTARINDICATOR]);
 
     lseek(fd, actual_offset, SEEK_SET);
     
-    if (strncmp(buffer,"ustar",HeaderField.size[USTARINDICATOR]) == 0)
+    if (strncmp(buffer,"ustar",HFld.size[USTARINDICATOR]) == 0)
         return true;
     else
         return false;
@@ -69,12 +68,12 @@ bool eof(int fd, char* buffer, off_t actual_offset)
     //char buffer[100];
     off_t  new_offset;
 
-    bool isUstar = isUstarFile(fd , actual_offset );
+    bool isUstar = isUstarFile(fd , actual_offset);
 
-    new_offset = lseek(fd,HeaderField.size[FILESIZEBYTES],SEEK_CUR);
+    new_offset = lseek(fd,HFld.size[FILESIZEBYTES],SEEK_CUR);
     CtrlRtrnNeg(new_offset);
 
-    read_bytes(fd, buffer, HeaderField.size[FILESIZEBYTES]);
+    read_bytes(fd, buffer, HFld.size[FILESIZEBYTES]);
 
     lseek(fd, actual_offset, SEEK_SET);
 
@@ -84,95 +83,78 @@ bool eof(int fd, char* buffer, off_t actual_offset)
         return false;
 }
 
-int readContent(int fd)
+int readContent(int fd , off_t actual_offset)
 {
-    int returnVal = -1;
-
-    off_t  new_offset;
-   // off_t eof;
+    int returnVal = -1;     //!!!!!!!!!!!!!!!!!!!!!!!1
     char buffer[100];
-
-    Info FileInfo = {NULL,NULL,NULL,NULL,0,0,0};
-
-    //eof = lseek(fd,0,SEEK_END);
-   // CtrlRtrnNeg(eof);
-
-    new_offset = lseek(fd,0,SEEK_SET);   //go to the beginning of the file
-    CtrlRtrnNeg(new_offset);
-
-    if(new_offset != 0)
-    {
-        ErrorSeveral("Offset could not be positioned at the beginning\n");
-    }
-
-    off_t padding1 = HeaderField.size[OWN_USERID] + HeaderField.size[GROUP_USERID];
-    off_t padding2 = HeaderField.size[CHECKSUMHEADER];
-    off_t padding3 = HeaderField.size[NAMELINKFILE] + HeaderField.size[USTARINDICATOR] + HeaderField.size[USTARV00];
-    off_t padding4 = HeaderField.size[DEVICEMAJORNR] + HeaderField.size[DEVICEMINORNR] + HeaderField.size[FILENAMEPREFIX] + 12;
-    uint64 InfoBlock;
+    Info FInfo = {NULL,NULL,NULL,NULL,0,0,0};
     int count = 0;
 
-    while(true)
-    {
-        if(eof(fd, buffer,new_offset))
-            break;
-        
+    off_t Pad1 = HFld.size[OWN_USERID] + HFld.size[GROUP_USERID];
+    off_t Pad2 = HFld.size[CHECKSUMHEADER];
+    off_t Pad3 = HFld.size[NAMELINKFILE] + HFld.size[USTARINDICATOR] + HFld.size[USTARV00];
+    off_t Pad4 = HFld.size[DEVICEMAJORNR] + HFld.size[DEVICEMINORNR] + HFld.size[FILENAMEPREFIX] + 12;
 
+    while(!eof(fd, buffer,actual_offset))
+    {
         count++;
 
-        for(int i = 0; i < HEADERFIELDS; i++)
+        for(int i = 0; i < H_FIELDS; i++)
         {
             switch (i)
             {
             case FILENAME:
-                read_bytes(fd, buffer, HeaderField.size[FILENAME]);
-                FileInfo.FileName = strndup(buffer,HeaderField.size[FILENAME]);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                read_bytes(fd, buffer, HFld.size[FILENAME]);
+                FInfo.FileName = strndup(buffer,HFld.size[FILENAME]);
+                actual_offset = lseek(fd,0,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
                 break;
             
             case FIlEMODE:
-                CtrlRtrnNeg(new_offset);
-                read_bytes(fd, buffer, HeaderField.size[FIlEMODE]);
-                FileInfo.Zugriff = convertStringtoInt(buffer, HeaderField.size[FIlEMODE]-1, true);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                read_bytes(fd, buffer, HFld.size[FIlEMODE]);
+                FInfo.Zugriff = convertStringtoInt(buffer, HFld.size[FIlEMODE]-1, true);
+                actual_offset = lseek(fd,0,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
                 break;
             
             case FILESIZEBYTES:
-                new_offset = lseek(fd,padding1,SEEK_CUR);
-                CtrlRtrnNeg(new_offset);
-                read_bytes(fd, buffer, HeaderField.size[FILESIZEBYTES]);
-                FileInfo.FileSize = convertStringtoInt(buffer, HeaderField.size[FILESIZEBYTES]-1, false);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                actual_offset = lseek(fd,Pad1,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
+                read_bytes(fd, buffer, HFld.size[FILESIZEBYTES]);
+                FInfo.FileSize = convertStringtoInt(buffer, HFld.size[FILESIZEBYTES]-1, false);
+                actual_offset = lseek(fd,0,SEEK_CUR);
                 break;
 
             case LASTMODOCTAL:
-                CtrlRtrnNeg(new_offset);
-                read_bytes(fd, buffer, HeaderField.size[LASTMODOCTAL]);
-                FileInfo.LastModTime = convertStringtoInt(buffer, HeaderField.size[LASTMODOCTAL]-1 , false);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                read_bytes(fd, buffer, HFld.size[LASTMODOCTAL]);
+                FInfo.LastModTime = convertStringtoInt(buffer, HFld.size[LASTMODOCTAL]-1 , false);
+                actual_offset = lseek(fd,0,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
                 break;
             
             case TYPEFLAG:
-                new_offset = lseek(fd,padding2,SEEK_CUR);
-                CtrlRtrnNeg(new_offset);
-                read_bytes(fd, buffer, HeaderField.size[TYPEFLAG]);
-                FileInfo.FileType = strndup(buffer,HeaderField.size[TYPEFLAG]);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                actual_offset = lseek(fd,Pad2,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
+                read_bytes(fd, buffer, HFld.size[TYPEFLAG]);
+                FInfo.FileType = strndup(buffer,HFld.size[TYPEFLAG]);
+                actual_offset = lseek(fd,0,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
                 break;
             
             case OWNERUSERNAME:
-                new_offset = lseek(fd,padding3,SEEK_CUR);
-                CtrlRtrnNeg(new_offset);
-                read_bytes(fd, buffer, HeaderField.size[OWNERUSERNAME]);
-                FileInfo.UserName = strndup(buffer,HeaderField.size[OWNERUSERNAME]);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                actual_offset = lseek(fd,Pad3,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
+                read_bytes(fd, buffer, HFld.size[OWNERUSERNAME]);
+                FInfo.UserName = strndup(buffer,HFld.size[OWNERUSERNAME]);
+                actual_offset = lseek(fd,0,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
                 break;
             
             case OWNERGRPNAME:
-                CtrlRtrnNeg(new_offset);
-                read_bytes(fd, buffer, HeaderField.size[OWNERGRPNAME]);
-                FileInfo.GrpName = strndup(buffer,HeaderField.size[OWNERGRPNAME]);
-                new_offset = lseek(fd,0,SEEK_CUR);
+                read_bytes(fd, buffer, HFld.size[OWNERGRPNAME]);
+                FInfo.GrpName = strndup(buffer,HFld.size[OWNERGRPNAME]);
+                actual_offset = lseek(fd,0,SEEK_CUR);
+                CtrlRtrnNeg(actual_offset);
                 break;
             
             default:
@@ -180,29 +162,26 @@ int readContent(int fd)
             }
         }
 
-        InfoBlock = FileInfo.FileSize;
-
-        if(InfoBlock != 0 && InfoBlock % 512 != 0)
+        //The block's must always be 512 divisible
+        if(FInfo.FileSize != 0 && FInfo.FileSize % 512 != 0)
         {
-            int mult = InfoBlock / 512;
+            int mult = FInfo.FileSize / 512;
             mult++;
-            InfoBlock = mult*512;
+            FInfo.FileSize = mult*512;
         }
 
-        new_offset = lseek(fd,padding4 + InfoBlock, SEEK_CUR);
+        actual_offset = lseek(fd,Pad4 + FInfo.FileSize, SEEK_CUR);
 
-        //printf("%s\n",FileInfo.FileType);
-        //printf("%llu\n",FileInfo.Zugriff);
-        //printf("%s\n",FileInfo.UserName);
-        //printf("%s\n",FileInfo.GrpName);
-        //printf("%llu\n",FileInfo.FileSize);
-        //printf("%llu\n",FileInfo.LastModTime);
-        printf("%s\n",FileInfo.FileName);
-        
-
-        free(FileInfo.FileType);
-        free(FileInfo.UserName);
-        free(FileInfo.GrpName);
+        //printf("%s\n",FInfo.FileType);
+        //printf("%llu\n",FInfo.Zugriff);
+        //printf("%s\n",FInfo.UserName);
+        //printf("%s\n",FInfo.GrpName);
+        //printf("%llu\n",FInfo.FileSize);
+        //printf("%llu\n",FInfo.LastModTime);
+        printf("%s\n",FInfo.FileName);
+        free(FInfo.FileType);
+        free(FInfo.UserName);
+        free(FInfo.GrpName);
 
     }
 

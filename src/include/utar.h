@@ -55,12 +55,12 @@
                         fprintf(stderr," ERROR at line %d of file %s (function %s)\n%s\n",y,__LINE__,__FILE__,__func__,strerror(errno));\
                         exit(EXIT_FAILURE);}
 
-#define HEADERFIELDS    16
+#define H_FIELDS    16
 
 typedef struct{
 
-    int offset[HEADERFIELDS];
-    size_t size[HEADERFIELDS];
+    int offset[H_FIELDS];
+    size_t size[H_FIELDS];
 }Header;
 
 typedef unsigned long long uint64;
@@ -78,7 +78,7 @@ typedef struct
 
 
 bool isUstarFile(int fd , off_t actual_offset);
-int readContent(int fd);
+int readContent(int fd, off_t actual_offset);
 bool eof(int fd, char* buffer, off_t actual_offset);
 
 

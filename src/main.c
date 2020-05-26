@@ -16,9 +16,10 @@ int main (int argc, char **argv)
     CtrlRtrnNeg(fd);
 
     offset_begin = lseek(fd, 0, SEEK_SET);
+    CtrlRtrnNeg(offset_begin);
 
     if(isUstarFile(fd,offset_begin))
-        readContent(fd);
+        readContent(fd,offset_begin);
 
     closed = close(fd);
     CtrlRtrnNeg(closed);
