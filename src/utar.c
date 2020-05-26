@@ -63,7 +63,7 @@ bool isUstarFile(int fd, off_t actual_offset)
         return false;
 }
 
-bool eof(int fd, char* buffer, off_t actual_offset)
+static bool eof(int fd, char* buffer, off_t actual_offset)
 {
     //char buffer[100];
     off_t  new_offset;

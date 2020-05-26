@@ -76,10 +76,7 @@ typedef struct
 
 }Info;
 
-
 bool isUstarFile(int fd , off_t actual_offset);
 int readContent(int fd, off_t actual_offset);
-bool eof(int fd, char* buffer, off_t actual_offset);
-
 
 #endif
