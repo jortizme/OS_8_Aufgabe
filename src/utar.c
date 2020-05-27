@@ -104,6 +104,7 @@ bool isUstarFile(int fd, off_t actual_offset)
         return false;
 }
 
+
 static bool eof(int fd, char* buffer, off_t actual_offset)
 {
     //char buffer[100];
@@ -127,6 +128,8 @@ static bool eof(int fd, char* buffer, off_t actual_offset)
 void readContent(int fd , off_t actual_offset)
 {
     char buffer[100];
+    char* perm;
+    unsigned int us_gr_oth[3];
     char* fileSize;
     Info FInfo = {NULL,NULL,NULL,NULL,0,0,0};
     int count = 0;
@@ -215,9 +218,27 @@ void readContent(int fd , off_t actual_offset)
 
         actual_offset = lseek(fd,Pad4 + FInfo.FileSize, SEEK_CUR);
 
+        char typePerm[] = "----------";
+        perm = convInttoStr(FInfo.Zugriff);
+
+        for(int i = 0; i < 3; i++)
+            us_gr_oth[i] = perm[i] - '0';
+
+        for(int i = 0; i < 3; i++)
+        {
+            if(us_gr_oth[i] & B_READ)
+                typePerm[1 + i*3] = 'r';
+            
+            if(us_gr_oth[i] & B_WRITE)
+                typePerm[2 + i*3] = 'w';
+            
+            if(us_gr_oth[i] & B_EXEC)
+                typePerm[3 + i*3] = 'x';
+        }
+
         printf_Stdout(FInfo.FileType, stringlen(FInfo.FileType));
         printf_Stdout("\t", sizeof("\t"));
-        printf_Stdout((void*)&FInfo.Zugriff, sizeof(FInfo.Zugriff));
+        printf_Stdout(typePerm, stringlen(typePerm));
         printf_Stdout("\t", sizeof("\t"));
         printf_Stdout(FInfo.GrpName, stringlen(FInfo.GrpName));
         printf_Stdout("\t", sizeof("\t"));
@@ -230,20 +251,12 @@ void readContent(int fd , off_t actual_offset)
         printf_Stdout(FInfo.FileName, stringlen(FInfo.FileName));
         printf_Stdout("\r\n", sizeof("\r\n"));
 
-
-
-        //printf("%s\n",FInfo.FileType);
-        //printf("%llu\n",FInfo.Zugriff);
-        //printf("%s\n",FInfo.UserName);
-        //printf("%s\n",FInfo.GrpName);
-        //printf("%llu\n",FInfo.FileSize);
-        //printf("%llu\n",FInfo.LastModTime);
-        //printf("%s\n",FInfo.FileName);
-
         free(FInfo.FileType);
         free(FInfo.UserName);
         free(FInfo.GrpName);
-
+        free(FInfo.LastModTime);
+        free(fileSize);
+        free(perm);
     }
 
     printf("%d\n", count);//!!!!!!!!!!!!

@@ -44,7 +44,10 @@
 #define DIRECTORY       '5'
 #define FIFO            '6'
 
-//Somme error macros are not beiang used
+#define B_READ          0x4   
+#define B_WRITE         0x2
+#define B_EXEC          0x1
+
 #define ErrorSeveral(x) fprintf(stderr,x); exit(EXIT_FAILURE)
 #define ErrorNormal(x) fprintf(stderr,x); exit(EXIT_FAILURE) 
 
