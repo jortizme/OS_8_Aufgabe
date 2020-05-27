@@ -44,6 +44,7 @@
 #define DIRECTORY       '5'
 #define FIFO            '6'
 
+//Somme error macros are not beiang used
 #define ErrorSeveral(x) fprintf(stderr,x); exit(EXIT_FAILURE)
 #define ErrorNormal(x) fprintf(stderr,x); exit(EXIT_FAILURE) 
 
@@ -51,32 +52,28 @@
                         fprintf(stderr,"ERROR at line %d of file %s (function %s)\n%s\n",__LINE__,__FILE__,__func__,strerror(errno));\
                         exit(EXIT_FAILURE);}
 
-#define CtrlRtrnNULL(x) if(x == NULL){ \
-                        fprintf(stderr," ERROR at line %d of file %s (function %s)\n%s\n",y,__LINE__,__FILE__,__func__,strerror(errno));\
-                        exit(EXIT_FAILURE);}
-
 #define H_FIELDS    16
 
 typedef struct{
-
+    
     int offset[H_FIELDS];
     size_t size[H_FIELDS];
 }Header;
 
 typedef unsigned long long uint64;
-typedef struct 
-{
+typedef struct {
+
     char* FileName;
     char* GrpName;
     char* UserName;
     char* FileType;
-    uint64 Zugriff;
+    uint64 Zugriff; //  DIES WIRD SOWIESO WIE AUFGABE 7 IN EINEM STRING UMGEWANDELT
     uint64 FileSize;
-    uint64 LastModTime;
+    char* LastModTime;
 
 }Info;
 
 bool isUstarFile(int fd , off_t actual_offset);
-int readContent(int fd, off_t actual_offset);
+void readContent(int fd, off_t actual_offset);
 
 #endif
