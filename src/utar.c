@@ -130,9 +130,9 @@ void readContent(int fd , off_t actual_offset)
     char buffer[100];
     char* perm;
     unsigned int us_gr_oth[3];
+    char TimeFormat[TIME_FORMAT_LENGTH];
     char* fileSize;
     Info FInfo = {NULL,NULL,NULL,NULL,0,0,0};
-    int count = 0;
 
     off_t const Pad1 = HFld.size[OWN_USERID] + HFld.size[GROUP_USERID];
     off_t const Pad2 = HFld.size[CHECKSUMHEADER];
@@ -141,8 +141,6 @@ void readContent(int fd , off_t actual_offset)
 
     while(!eof(fd, buffer,actual_offset))
     {
-        count++;
-
         for(int i = 0; i < H_FIELDS; i++)
         {
             switch (i)
@@ -171,7 +169,7 @@ void readContent(int fd , off_t actual_offset)
 
             case LASTMODOCTAL:
                 read_bytes(fd, buffer, HFld.size[LASTMODOCTAL]);
-                FInfo.LastModTime = convInttoStr(convStrtoInt(buffer, HFld.size[LASTMODOCTAL]-1 , false));
+                FInfo.LastModTime = convStrtoInt(buffer, HFld.size[LASTMODOCTAL]-1 , false);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 break;
@@ -221,11 +219,22 @@ void readContent(int fd , off_t actual_offset)
         char typePerm[] = "----------";
         perm = convInttoStr(FInfo.Zugriff);
 
-        for(int i = 0; i < 3; i++)
-            us_gr_oth[i] = perm[i] - '0';
+        switch (*FInfo.FileType)
+        {
+            case NORMALFILE:                        break;
+            case HARDLINK:      typePerm[0] = 'h';  break;
+            case SYMLINK:       typePerm[0] = 'l';  break;
+            case CHARSPECIAL:   typePerm[0] = 'c';  break;
+            case BLOCKSPECIAL:  typePerm[0] = 'b';  break;
+            case DIRECTORY:     typePerm[0] = 'd';  break;
+            case FIFO:          typePerm[0] = 'p';  break;
+            default:                                break;
+        }
 
         for(int i = 0; i < 3; i++)
         {
+            us_gr_oth[i] = perm[i] - '0';
+
             if(us_gr_oth[i] & B_READ)
                 typePerm[1 + i*3] = 'r';
             
@@ -236,30 +245,28 @@ void readContent(int fd , off_t actual_offset)
                 typePerm[3 + i*3] = 'x';
         }
 
-        printf_Stdout(FInfo.FileType, stringlen(FInfo.FileType));
-        printf_Stdout("\t", sizeof("\t"));
+        //Get a proper time format
+        strftime(TimeFormat,TIME_FORMAT_LENGTH,"%Y-%m-%d %H:%M",localtime((time_t*)(&FInfo.LastModTime)));
+
         printf_Stdout(typePerm, stringlen(typePerm));
-        printf_Stdout("\t", sizeof("\t"));
-        printf_Stdout(FInfo.GrpName, stringlen(FInfo.GrpName));
-        printf_Stdout("\t", sizeof("\t"));
+        printf_Stdout(" ", sizeof(" "));
         printf_Stdout(FInfo.UserName, stringlen(FInfo.UserName));
+        printf_Stdout("/", sizeof("/"));
+        printf_Stdout(FInfo.GrpName, stringlen(FInfo.GrpName));
         printf_Stdout("\t", sizeof("\t"));
         printf_Stdout(fileSize, stringlen(fileSize));
         printf_Stdout("\t", sizeof("\t"));
-        printf_Stdout(FInfo.LastModTime, strlen(FInfo.LastModTime));
-        printf_Stdout("\t", sizeof("\t"));
+        printf_Stdout(TimeFormat, strlen(TimeFormat));
+        printf_Stdout(" ", sizeof(" "));
         printf_Stdout(FInfo.FileName, stringlen(FInfo.FileName));
         printf_Stdout("\r\n", sizeof("\r\n"));
 
         free(FInfo.FileType);
         free(FInfo.UserName);
         free(FInfo.GrpName);
-        free(FInfo.LastModTime);
         free(fileSize);
         free(perm);
     }
-
-    printf("%d\n", count);//!!!!!!!!!!!!
 }
 
 

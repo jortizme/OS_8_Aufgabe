@@ -48,6 +48,8 @@
 #define B_WRITE         0x2
 #define B_EXEC          0x1
 
+#define TIME_FORMAT_LENGTH 15
+
 #define ErrorSeveral(x) fprintf(stderr,x); exit(EXIT_FAILURE)
 #define ErrorNormal(x) fprintf(stderr,x); exit(EXIT_FAILURE) 
 
@@ -72,7 +74,7 @@ typedef struct {
     char* FileType;
     uint64 Zugriff; //  DIES WIRD SOWIESO WIE AUFGABE 7 IN EINEM STRING UMGEWANDELT
     uint64 FileSize;
-    char* LastModTime;
+    uint64 LastModTime;
 
 }Info;
 
