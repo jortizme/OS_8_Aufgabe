@@ -1,3 +1,8 @@
+//Veranstaltung: Betriebssysteme 
+//Name, Matrikel-Nr: Joaquin Alejandro Ortiz Meza - 835862 
+//Datum: 28.05.2020
+//joaquin.ortiz-meza@hs-osnabrueck.de 
+
 #include "include/ustar.h"
 
 extern int errno;
