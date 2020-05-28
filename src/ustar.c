@@ -4,7 +4,6 @@
 static const Header HFld  = {{0,100,108,116,124,136,148,156,157,257,263,265,297,329,337,345},
                             {100,8,8,8,12,12,8,1,100,6,2,32,32,8,8,155}};
 
-
 bool isUstarFile(int fd, off_t actual_offset)
 {
     char buffer[100];
@@ -27,6 +26,7 @@ bool isUstarFile(int fd, off_t actual_offset)
 static bool eof(int fd, char* buffer, off_t actual_offset)
 {
     off_t  new_offset;
+    bool retVal = false;
 
     bool isUstar = isUstarFile(fd , actual_offset);
 
@@ -38,9 +38,9 @@ static bool eof(int fd, char* buffer, off_t actual_offset)
     lseek(fd, actual_offset, SEEK_SET);
 
     if(*buffer == '\0' && !isUstar)
-        return true;
-    else 
-        return false;
+        retVal = true;
+
+    return retVal;
 }
 
 void readContent(int fd , off_t actual_offset)
@@ -75,7 +75,7 @@ void readContent(int fd , off_t actual_offset)
             
             case FIlEMODE:
                 read_bytes(fd, buffer, HFld.size[FIlEMODE]);
-                FInfo.Zugriff = convStrtoInt(buffer, HFld.size[FIlEMODE]-1, true);
+                FInfo.Zugriff = StrtoInt(buffer, HFld.size[FIlEMODE]-1, true);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 break;
@@ -84,13 +84,13 @@ void readContent(int fd , off_t actual_offset)
                 actual_offset = lseek(fd,Pad1,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 read_bytes(fd, buffer, HFld.size[FILESIZEBYTES]);
-                FInfo.FileSize = convStrtoInt(buffer, HFld.size[FILESIZEBYTES]-1, false);
+                FInfo.FileSize = StrtoInt(buffer, HFld.size[FILESIZEBYTES]-1, false);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 break;
 
             case LASTMODOCTAL:
                 read_bytes(fd, buffer, HFld.size[LASTMODOCTAL]);
-                FInfo.LastModTime = convStrtoInt(buffer, HFld.size[LASTMODOCTAL]-1 , false);
+                FInfo.LastModTime = StrtoInt(buffer, HFld.size[LASTMODOCTAL]-1 , false);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 break;
@@ -125,7 +125,7 @@ void readContent(int fd , off_t actual_offset)
             }
         }
 
-        fileSize = convInttoStr(FInfo.FileSize);
+        fileSize = InttoStr(FInfo.FileSize);
 
         //The block info's size must always be 512 divisible
         if(FInfo.FileSize % 512 != 0)
@@ -138,7 +138,7 @@ void readContent(int fd , off_t actual_offset)
         actual_offset = lseek(fd,Pad4 + FInfo.FileSize, SEEK_CUR);
 
         char typePerm[] = "----------";
-        perm = convInttoStr(FInfo.Zugriff);
+        perm = InttoStr(FInfo.Zugriff);
 
         switch (*FInfo.FileType)
         {
@@ -167,20 +167,20 @@ void readContent(int fd , off_t actual_offset)
         }
 
         //Get a proper time format
-        strftime(TimeFormat,TIME_FORMAT_LENGTH,"%Y-%m %H:%M",localtime((time_t*)(&FInfo.LastModTime)));
+        strftime(TimeFormat,TIME_FORMAT_LENGTH,"%Y-%m-%d %H:%M",localtime(&FInfo.LastModTime));
 
-        printf_Stdout(typePerm, stringlen(typePerm));
-        printf_Stdout(" ", sizeof(" "));
-        printf_Stdout(FInfo.UserName, stringlen(FInfo.UserName));
-        printf_Stdout("/", sizeof("/"));
-        printf_Stdout(FInfo.GrpName, stringlen(FInfo.GrpName));
-        printf_Stdout("\t", sizeof("\t"));
-        printf_Stdout(fileSize, stringlen(fileSize));
-        printf_Stdout("\t", sizeof("\t"));
-        printf_Stdout(TimeFormat, strlen(TimeFormat));
-        printf_Stdout(" ", sizeof(" "));
-        printf_Stdout(FInfo.FileName, stringlen(FInfo.FileName));
-        printf_Stdout("\r\n", sizeof("\r\n"));
+        print_stdout(typePerm);
+        print_stdout(" ");
+        print_stdout(FInfo.UserName);
+        print_stdout("/");
+        print_stdout(FInfo.GrpName);
+        print_stdout("\t");
+        print_stdout(fileSize);
+        print_stdout("\t");
+        print_stdout(TimeFormat);
+        print_stdout(" ");
+        print_stdout(FInfo.FileName);
+        print_stdout("\r\n");
 
         free(FInfo.FileType);
         free(FInfo.UserName);
@@ -189,11 +189,12 @@ void readContent(int fd , off_t actual_offset)
         free(perm);
     }
 
-    char* fileAmountstr = convInttoStr(fileAmount);
-    printf_Stdout("\n", sizeof("\n"));
-    printf_Stdout("Amount of files = ", sizeof("Amount of files = "));
-    printf_Stdout(fileAmountstr, stringlen(fileAmountstr));
-    printf_Stdout("\n", sizeof("\n"));
+    char* fileAmountstr = InttoStr(fileAmount);
+
+    print_stdout("\n");
+    print_stdout("Amount of files = ");
+    print_stdout(fileAmountstr);
+    print_stdout("\n");
     free(fileAmountstr);
 }
 

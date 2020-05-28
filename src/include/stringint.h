@@ -4,10 +4,10 @@
 #include "ustar.h"
 
 void read_bytes(int fd, void* buffer, size_t nbytes);
-void printf_Stdout(const void* buffer, size_t nbytes);
+void print_stdout(const char* buffer);
 size_t stringlen(const char* buffer);
-char* convInttoStr(uint64_t val);
-uint64_t convStrtoInt(char* string, size_t length, bool isZugriff);
+char* InttoStr(uint64_t val);
+uint64_t StrtoInt(char* string, size_t length, bool isZugriff);
 bool stringncmp(const char* str1, const char* str2, size_t nBytes);
 
 #endif

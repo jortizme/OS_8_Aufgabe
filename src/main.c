@@ -7,7 +7,7 @@ int main (int argc, char **argv)
     if(argc != 2) {ErrorSeveral("Usage : ./<executable> <filename>\n");}
     
     int fd;
-    mode_t mode = S_IRUSR | S_IRGRP | S_IROTH; //fast sicher wir brauchen das nicht;
+    mode_t mode = S_IRUSR | S_IRGRP | S_IROTH;
     int closed;
     off_t offset_begin;
 

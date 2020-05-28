@@ -1,6 +1,6 @@
 #include "include/stringint.h"
 
-static uint64_t OctaltoDecimal(uint64_t* octalNr)
+static uint64_t OcttoDec(uint64_t* octalNr)
 {
     uint64_t decimalNr = 0;
     uint64_t exponent = 1;
@@ -40,10 +40,11 @@ void read_bytes(int fd, void* buffer, size_t nbytes)
     }
 }
 
-void printf_Stdout(const void* buffer, size_t nbytes)
+void print_stdout(const char* buffer)
 {
     ssize_t rtrnWrite = -1;
-    rtrnWrite = write(STDOUT_FILENO,buffer,nbytes);
+    size_t nBytes = strlen(buffer);
+    rtrnWrite = write(STDOUT_FILENO,buffer,nBytes);
     CtrlRtrnNeg(rtrnWrite);
 }
 
@@ -57,7 +58,7 @@ size_t stringlen(const char* buffer)
     return ++size;
 }
 
-char* convInttoStr(uint64_t val)
+char* InttoStr(uint64_t val)
 {
     char const items[] = "0123456789";
     uint64_t shift = val;
@@ -81,7 +82,7 @@ char* convInttoStr(uint64_t val)
     return string;
 }
 
-uint64_t convStrtoInt(char* string, size_t length, bool isDecimal)
+uint64_t StrtoInt(char* string, size_t length, bool isDecimal)
 {
     uint64_t mult = 1;
     uint64_t Value = 0;
@@ -95,6 +96,6 @@ uint64_t convStrtoInt(char* string, size_t length, bool isDecimal)
     if(isDecimal)
         return Value;
 
-    return OctaltoDecimal(&Value); 
+    return OcttoDec(&Value); 
 }
 

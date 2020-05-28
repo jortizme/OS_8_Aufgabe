@@ -48,7 +48,7 @@
 #define B_WRITE         0x2
 #define B_EXEC          0x1
 
-#define TIME_FORMAT_LENGTH 15
+#define TIME_FORMAT_LENGTH 20
 
 #define ErrorSeveral(x) fprintf(stderr,x); exit(EXIT_FAILURE)
 #define ErrorNormal(x) fprintf(stderr,x); exit(EXIT_FAILURE) 
@@ -61,7 +61,7 @@
 
 typedef struct{
     
-    int offset[H_FIELDS];
+    uint16_t offset[H_FIELDS];
     size_t size[H_FIELDS];
 }Header;
 
@@ -71,9 +71,9 @@ typedef struct {
     char* GrpName;
     char* UserName;
     char* FileType;
-    uint64_t Zugriff; //  DIES WIRD SOWIESO WIE AUFGABE 7 IN EINEM STRING UMGEWANDELT
+    uint64_t Zugriff; 
     uint64_t FileSize;
-    uint64_t LastModTime;
+    time_t LastModTime;
 
 }Info;
 
