@@ -14,9 +14,9 @@
 #include <time.h>
 #include <string.h>
 #include <stdbool.h>
+#include <inttypes.h>
 
 //Offsets
-
 #define FILENAME        0
 #define FIlEMODE        1
 #define OWN_USERID      2
@@ -65,16 +65,15 @@ typedef struct{
     size_t size[H_FIELDS];
 }Header;
 
-typedef unsigned long long uint64;
 typedef struct {
 
     char* FileName;
     char* GrpName;
     char* UserName;
     char* FileType;
-    uint64 Zugriff; //  DIES WIRD SOWIESO WIE AUFGABE 7 IN EINEM STRING UMGEWANDELT
-    uint64 FileSize;
-    uint64 LastModTime;
+    uint64_t Zugriff; //  DIES WIRD SOWIESO WIE AUFGABE 7 IN EINEM STRING UMGEWANDELT
+    uint64_t FileSize;
+    uint64_t LastModTime;
 
 }Info;
 
