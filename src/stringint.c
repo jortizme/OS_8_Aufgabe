@@ -29,7 +29,7 @@ bool stringncmp(const char* str1, const char* str2, size_t nBytes)
 
     return returnVal;
 }
-void read_bytes(int fd, void* buffer, size_t nbytes)
+void read_bytes(int fd, char* buffer, size_t nbytes)
 {
     ssize_t bytes_read = -1;
     bytes_read = read(fd, buffer, nbytes);
@@ -82,12 +82,12 @@ char* InttoStr(uint64_t val)
     return string;
 }
 
-uint64_t StrtoInt(char* string, size_t length, bool isDecimal)
+uint64_t StrtoInt(char* string, bool isDecimal)
 {
     uint64_t mult = 1;
     uint64_t Value = 0;
 
-    for(int i = (int)length; i > 0; i--)
+    for(int i = (int)(stringlen(string) - 1); i > 0; i--)
     {
         Value += (string[i - 1] - '0') * mult;
         mult *= 10;

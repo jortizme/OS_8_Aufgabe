@@ -4,17 +4,17 @@
 #include "ustar.h"
 
 /*
-    +reads the nbytes from then file pointed to by fd
-    +checks if the operation was succesful
+    +reads nbytes from the file pointed to by fd
+    and checks if the operation was succesful
     -param(1) -> file descriptor
-    -param(2) -> buffer to store nbytes
+    -param(2) -> char array to store nbytes
     -param(3) -> amount of bytes to be read
     +the program exits when operation unsuccessful 
 */
-void read_bytes(int fd, void* buffer, size_t nbytes);
+void read_bytes(int fd, char* buffer, size_t nbytes);
 
 /*
-    +outputs the content of buffer in the standard output
+    +writes the content of buffer in the standard output
     -checks if the operation was succesful
     -param(1) -> char array containing the desired information
     +the program exits when operation unsuccessful 
@@ -44,13 +44,12 @@ bool stringncmp(const char* str1, const char* str2, size_t nBytes);
 char* InttoStr(uint64_t val);
 
 /*
-    +converts a string number representation into a uint64_t number
-    -param(1) -> char array
-    -param(2) -> second char array
-    -param(3) -> amount of bytes to be compared
-    -return -> true if both arrays are equal
+    +converts a string number representation into an uint64_t number
+    -param(1) -> char array 
+    -param(2) -> if param(1) represents a decimal number then true
+                otherwise in case of octal number false
+    -return -> uint64_t number
 */
-uint64_t StrtoInt(char* string, size_t length, bool isDecimal);
-
+uint64_t StrtoInt(char* string, bool isDecimal);
 
 #endif

@@ -75,7 +75,7 @@ void readContent(int fd , off_t actual_offset)
             
             case FIlEMODE:
                 read_bytes(fd, buffer, HFld.size[FIlEMODE]);
-                FInfo.Zugriff = StrtoInt(buffer, HFld.size[FIlEMODE]-1, true);
+                FInfo.Zugriff = StrtoInt(buffer, true);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 break;
@@ -84,13 +84,13 @@ void readContent(int fd , off_t actual_offset)
                 actual_offset = lseek(fd,Pad1,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 read_bytes(fd, buffer, HFld.size[FILESIZEBYTES]);
-                FInfo.FileSize = StrtoInt(buffer, HFld.size[FILESIZEBYTES]-1, false);
+                FInfo.FileSize = StrtoInt(buffer, false);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 break;
 
             case LASTMODOCTAL:
                 read_bytes(fd, buffer, HFld.size[LASTMODOCTAL]);
-                FInfo.LastModTime = StrtoInt(buffer, HFld.size[LASTMODOCTAL]-1 , false);
+                FInfo.LastModTime = StrtoInt(buffer, false);
                 actual_offset = lseek(fd,0,SEEK_CUR);
                 CtrlRtrnNeg(actual_offset);
                 break;
