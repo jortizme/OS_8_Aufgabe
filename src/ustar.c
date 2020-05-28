@@ -9,6 +9,7 @@ bool isUstarFile(int fd, off_t actual_offset)
 {
     char buffer[100];
     off_t  new_offset;
+    bool retVal = false;
 
     new_offset = lseek(fd,HFld.offset[USTARINDICATOR],SEEK_CUR);
     CtrlRtrnNeg(new_offset);
@@ -17,15 +18,14 @@ bool isUstarFile(int fd, off_t actual_offset)
 
     lseek(fd, actual_offset, SEEK_SET);
     
-    if (strncmp(buffer,"ustar",HFld.size[USTARINDICATOR]) == 0) //STRNCMP IMPLEMENTIEREN
-        return true;
-    else
-        return false;
+    if (stringncmp(buffer,"ustar",HFld.size[USTARINDICATOR]))
+        retVal = true;
+
+    return retVal;
 }
 
 static bool eof(int fd, char* buffer, off_t actual_offset)
 {
-    //char buffer[100];
     off_t  new_offset;
 
     bool isUstar = isUstarFile(fd , actual_offset);
@@ -51,6 +51,7 @@ void readContent(int fd , off_t actual_offset)
     char TimeFormat[TIME_FORMAT_LENGTH];
     char* fileSize;
     Info FInfo = {NULL,NULL,NULL,NULL,0,0,0};
+    uint64_t fileAmount = 0;
 
     off_t const Pad1 = HFld.size[OWN_USERID] + HFld.size[GROUP_USERID];
     off_t const Pad2 = HFld.size[CHECKSUMHEADER];
@@ -59,6 +60,8 @@ void readContent(int fd , off_t actual_offset)
 
     while(!eof(fd, buffer,actual_offset))
     {
+        fileAmount++;
+
         for(int i = 0; i < H_FIELDS; i++)
         {
             switch (i)
@@ -164,7 +167,7 @@ void readContent(int fd , off_t actual_offset)
         }
 
         //Get a proper time format
-        strftime(TimeFormat,TIME_FORMAT_LENGTH,"%Y-%m-%d %H:%M",localtime((time_t*)(&FInfo.LastModTime)));
+        strftime(TimeFormat,TIME_FORMAT_LENGTH,"%Y-%m %H:%M",localtime((time_t*)(&FInfo.LastModTime)));
 
         printf_Stdout(typePerm, stringlen(typePerm));
         printf_Stdout(" ", sizeof(" "));
@@ -185,6 +188,13 @@ void readContent(int fd , off_t actual_offset)
         free(fileSize);
         free(perm);
     }
+
+    char* fileAmountstr = convInttoStr(fileAmount);
+    printf_Stdout("\n", sizeof("\n"));
+    printf_Stdout("Amount of files = ", sizeof("Amount of files = "));
+    printf_Stdout(fileAmountstr, stringlen(fileAmountstr));
+    printf_Stdout("\n", sizeof("\n"));
+    free(fileAmountstr);
 }
 
 
